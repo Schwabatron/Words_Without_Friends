@@ -18,6 +18,7 @@ void make_upper(char *string);
 void strip_string(char *string);
 void getLetterDistribution(char *input, int *distro);
 bool compareCounts(int *candidate_word_distro, int *valid_words_distro);
+bool input_checker(char *string);
 
 int main()
 {
@@ -68,15 +69,20 @@ void acceptInput()
     char buffer[20];
     printf("Enter a guess: ");
     fgets(buffer, sizeof(buffer), stdin);
-    make_upper(buffer);
-    strip_string(buffer);
-    getLetterDistribution(buffer, distro);
+    if(input_checker(buffer)) {
+        make_upper(buffer);
+        strip_string(buffer);
+        getLetterDistribution(buffer, distro);
 
-    if(compareCounts(distro, validLettersdistro)) {
-        printf("You win!\n");
+        if(compareCounts(distro, validLettersdistro)) {
+            printf("You win!\n");
 
-    } else {
-        printf("You lose!\n");
+        } else {
+            printf("You lose!\n");
+        }
+    }
+    else {
+        printf("Wrong input!\n");
     }
 }
 
@@ -114,6 +120,16 @@ bool compareCounts(int *candidate_word_distro, int *valid_words_distro)
     {
         if(candidate_word_distro[i] > valid_words_distro[i])
         {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool input_checker(char *string) {
+    int length = strlen(string);
+    for(int i = 0; i < length-1; i++) {
+        if(!isalpha(string[i])) {
             return false;
         }
     }
