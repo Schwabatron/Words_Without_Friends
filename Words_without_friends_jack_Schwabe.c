@@ -109,6 +109,20 @@ void acceptInput()
     }
 }
 
+/*Helper functions
+ *make_upper: Takes a pointer to a char array as input and makes the string uppercase
+ *
+ *strip_string: Takes a pointer to a char array as input and removes the newlines
+ *
+ *getLetterDistribution: Takes 2 pointers, one to a char array and one to a int array. makes a distribution in the int array
+ *based on the letters of the char array(ie: "aa" -> [2,0,...]
+ *
+ *compareCounts: Takes 2 pointers, both to letter distributions found in the previous function. checks each letter against each other
+ *making sure the candidate can be made using the words in the master word
+ *
+ *input_checker: Makes sure the user only put in alphabetical characters
+ */
+
 
 void make_upper(char *string)
 {
