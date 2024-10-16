@@ -8,6 +8,12 @@
 char validLetters[] = "ADEFNORRSSW"; //Char array for the valid letters
 int validLettersdistro[26]; //Declaring a 26 int array to store the distribution for the valid letters
 
+typedef struct wordListNode  {
+    char word[30]; //30 char string
+    struct wordListNode *next; //pointer to next node
+} wordListNode;
+
+
 
 //Function Initializations
 int initialization();
@@ -21,6 +27,11 @@ void strip_string(char *string);
 void getLetterDistribution(char *input, int *distro);
 bool compareCounts(int *candidate_word_distro, int *valid_words_distro);
 bool input_checker(char *string);
+void insertIntoDictionary(wordListNode **root, char *new_word);
+
+
+
+wordListNode *root = NULL;
 
 //Main function
 int main()
@@ -33,8 +44,25 @@ int main()
 
 int initialization()
 {
-    srand(time(NULL)); //Getting a random int
-    return 0; //returning 0(for now)
+    srand(time(NULL)); //Setting a random time seed
+
+    int word_counter = 0;
+    FILE *file_pointer;
+    file_pointer = fopen("2of12.txt", "r");
+    if (file_pointer != NULL)
+    {
+        char word[30];
+        while((fscanf(file_pointer, "%s", word) != EOF)) //Adding the words word by word
+        {
+            insertIntoDictionary(&root, word); // Insert the word into the linked list
+            word_counter++; // Increment word count
+        }
+        fclose(file_pointer); //Closing file
+    }
+    else {
+        printf("File not found\n");
+    }
+    return word_counter; //Returning the number of words in the linked list
 }
 
 void gameLoop()
@@ -182,4 +210,34 @@ bool input_checker(char *string) {
     }
     //Otherwise return true
     return true;
+}
+
+void insertIntoDictionary(wordListNode **root, char *new_word) {
+    // Allocate memory for a new node
+    wordListNode *newNode = malloc(sizeof(wordListNode));
+
+    if (newNode == NULL) {
+        printf("Memory allocation failed for insertIntoList\n");
+        exit(1); // Exit the program on memory allocation failure
+    }
+
+
+    //strip_string(new_word);
+
+
+    strncpy((*newNode).word, new_word, 29); // Limit to 29 characters to avoid overflow
+    (*newNode).next = NULL;
+
+
+    if (*root == NULL) {
+        *root = newNode;
+    } else {
+
+        wordListNode *current = *root;
+        while ((*current).next != NULL) {
+            current = (*current).next;
+        }
+
+        (*current).next = newNode;
+    }
 }
