@@ -5,13 +5,20 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-char validLetters[] = "ADEFNORRSSW"; //Char array for the valid letters
+char validLetters[30]; //Char array for the valid letters
 int validLettersdistro[26]; //Declaring a 26 int array to store the distribution for the valid letters
+int word_counter = 0;
 
 typedef struct wordListNode  {
     char word[30]; //30 char string
     struct wordListNode *next; //pointer to next node
 } wordListNode;
+
+typedef struct gameListNode {
+    char word[30];
+    bool already_found;
+    struct gameListNode *next;
+} gameListNode;
 
 
 
@@ -28,15 +35,33 @@ void getLetterDistribution(char *input, int *distro);
 bool compareCounts(int *candidate_word_distro, int *valid_words_distro);
 bool input_checker(char *string);
 void insertIntoDictionary(wordListNode **root, char *new_word);
+wordListNode *getRandomWord();
+void findWords(wordListNode *masterword);
 
 
 
 wordListNode *root = NULL;
+gameListNode *game_root = NULL;
 
 //Main function
 int main()
 {
     initialization(); //Call to the initialization function
+    printf("%d\n", word_counter);
+
+    wordListNode *longWordNode = getRandomWord();
+    printf("%s\n", (*longWordNode).word);
+
+    findWords(longWordNode);
+
+    // Display the words in the game list
+    gameListNode *gameCurrent = game_root;
+    printf("Words that can be formed from the master word:\n");
+    while (gameCurrent != NULL) {
+        printf("%s\n", gameCurrent->word);
+        gameCurrent = gameCurrent->next;
+    }
+
     gameLoop(); //Call to the game loop function
     teardown(); //Call to the teardown function
     return 0;
@@ -46,7 +71,7 @@ int initialization()
 {
     srand(time(NULL)); //Setting a random time seed
 
-    int word_counter = 0;
+    //int word_counter = 0;
     FILE *file_pointer;
     file_pointer = fopen("2of12.txt", "r");
     if (file_pointer != NULL)
@@ -67,8 +92,6 @@ int initialization()
 
 void gameLoop()
 {
-    make_upper(validLetters); //Making sure the valid letters are uppercase
-    getLetterDistribution(validLetters, validLettersdistro); //Getting the distribution for the valid letters
     do
     {
         displayWorld(); //Call to the display world function
@@ -101,6 +124,7 @@ void displayWorld()
         printf("%c ", validLetters[i]);
     }
     //Displaying a line between the valid letters and the playing space
+
     printf("\n---------------------\n");
 }
 
@@ -221,10 +245,6 @@ void insertIntoDictionary(wordListNode **root, char *new_word) {
         exit(1); // Exit the program on memory allocation failure
     }
 
-
-    //strip_string(new_word);
-
-
     strncpy((*newNode).word, new_word, 29); // Limit to 29 characters to avoid overflow
     (*newNode).next = NULL;
 
@@ -241,3 +261,88 @@ void insertIntoDictionary(wordListNode **root, char *new_word) {
         (*current).next = newNode;
     }
 }
+
+void insertIntoGamelist(gameListNode **game_root, char *new_word) {
+    // Allocate memory for a new node
+    gameListNode *newNode = malloc(sizeof(gameListNode));
+
+    if (newNode == NULL) {
+        printf("Memory allocation failed for insertIntogameList\n");
+        exit(1); // Exit the program on memory allocation failure
+    }
+
+
+    strncpy((*newNode).word, new_word, 29); // Limit to 29 characters to avoid overflow
+    (*newNode).next = NULL;
+
+
+    if (*game_root == NULL) {
+        *game_root = newNode;
+    } else {
+
+        gameListNode *current = *game_root;
+        while ((*current).next != NULL) {
+            current = (*current).next;
+        }
+
+        (*current).next = newNode;
+    }
+}
+
+wordListNode *getRandomWord() {
+    if (word_counter == 0) {
+        printf("The dictionary is empty.\n");
+        exit(1);
+    }
+
+    int randomNode = rand() % word_counter; // Random index between 0 and word_counter - 1
+
+    wordListNode *current = root;
+    int count = 0;
+
+    // Traverse to the nth node
+    while (current != NULL && count < randomNode) {
+        current = (*current).next;
+        count++;
+    }
+
+    // Start searching from the nth node for a word longer than 6 characters
+    while (current != NULL) {
+        if (strlen((*current).word) > 6) {
+            return current; // Found a word longer than 6 characters
+        }
+        current = (*current).next;
+    }
+
+    // Handle the case where no such word is found
+    printf("Was not able to find a word over 6 characters starting from index %d\n", randomNode);
+    return NULL; // Or exit(1);
+}
+
+void findWords(wordListNode *masterword) {
+    strcpy(validLetters, (*masterword).word); //setting the valid letters
+    make_upper(validLetters);
+    getLetterDistribution(validLetters, validLettersdistro); //Getting the valid distribution for the valid letters
+
+    wordListNode *current = root;
+    int distro[26];
+
+    while (current != NULL) {
+        char tempWord[30];
+        strcpy(tempWord, (*current).word); // Copy the word to a temporary variable
+        make_upper(tempWord); // Convert to uppercase
+
+        // Get the distribution of the current word
+        getLetterDistribution(tempWord, distro);
+
+        // Compare distributions
+        if (compareCounts(distro, validLettersdistro)) {
+            // The word can be formed from the valid letters
+            insertIntoGamelist(&game_root, tempWord);
+        }
+
+        current = (*current).next; // Move to the next word in the dictionary
+    }
+
+}
+
