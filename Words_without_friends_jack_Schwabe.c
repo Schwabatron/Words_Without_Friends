@@ -39,22 +39,18 @@ wordListNode *getRandomWord();
 void findWords(wordListNode *masterword);
 
 
-
+//Declaring the two roots of the linked lists as global variables
 wordListNode *root = NULL;
 gameListNode *game_root = NULL;
 
 //Main function
 int main()
 {
-    initialization(); //Call to the initialization function
-    printf("%d\n", word_counter);
-
+    initialization(); //Call to the initialization funct
     wordListNode *longWordNode = getRandomWord();
-    printf("%s\n", (*longWordNode).word);
-
     findWords(longWordNode);
 
-    // Display the words in the game list
+    // Display the words in the game list (testing purposes)
     gameListNode *gameCurrent = game_root;
     printf("Words that can be formed from the master word:\n");
     while (gameCurrent != NULL) {
@@ -77,10 +73,10 @@ int initialization()
     if (file_pointer != NULL)
     {
         char word[30];
-        while((fscanf(file_pointer, "%s", word) != EOF)) //Adding the words word by word
+        while((fscanf(file_pointer, "%s", word) != EOF))
         {
-            insertIntoDictionary(&root, word); // Insert the word into the linked list
-            word_counter++; // Increment word count
+            insertIntoDictionary(&root, word); //Insert the word into the linked list
+            word_counter++; //Increment word count
         }
         fclose(file_pointer); //Closing file
     }
@@ -173,6 +169,15 @@ void acceptInput()
  *making sure the candidate can be made using the words in the master word
  *
  *input_checker: Makes sure the user only put in alphabetical characters
+ *
+ * insertIntoDictionary: takes the root and a new word to insert. adds the word to the end of the linked list
+ *
+ * insertIntogamelist: takes the root and a new word to insert. adds the word to the end of the linked list
+ *
+ * getRandomWord: gets a random node from the rand function, then iterates from that node to the end, returning the first 7 character or above word
+ *
+ * findWords: takes the masterword from the getRandomWord function. iterates through the dictionary, only adding words to the
+ * gamelist linked list that can be made using the letters from the masterwords characters
  */
 
 
@@ -240,7 +245,7 @@ void insertIntoDictionary(wordListNode **root, char *new_word) {
 
     wordListNode *newNode = malloc(sizeof(wordListNode));
 
-    if (newNode == NULL) {
+    if (newNode == NULL) { //Checking if malloc failed
         printf("Memory allocation failed for insertIntoList\n");
         exit(1);
     }
@@ -266,7 +271,7 @@ void insertIntoGamelist(gameListNode **game_root, char *new_word) {
 
     gameListNode *newNode = malloc(sizeof(gameListNode));
 
-    if (newNode == NULL) {
+    if (newNode == NULL) { //Checking if the malloc failed
         printf("Memory allocation failed for insertIntogameList\n");
         exit(1);
     }
@@ -290,12 +295,12 @@ void insertIntoGamelist(gameListNode **game_root, char *new_word) {
 }
 
 wordListNode *getRandomWord() {
-    if (word_counter == 0) {
+    if (word_counter == 0) { //Checking if the dictionary has any words
         printf("The dictionary is empty.\n");
         exit(1);
     }
 
-    int randomNode = rand() % word_counter;
+    int randomNode = rand() % word_counter; //getting the random node
 
     wordListNode *current = root;
     int count = 0;
@@ -340,7 +345,7 @@ void findWords(wordListNode *masterword) {
             insertIntoGamelist(&game_root, tempWord);
         }
 
-        current = (*current).next; // Move to the next word in the dictionary
+        current = (*current).next;
     }
 
 }
