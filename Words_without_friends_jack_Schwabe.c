@@ -250,7 +250,7 @@ void insertIntoDictionary(wordListNode **root, char *new_word) {
         exit(1);
     }
 
-    strncpy((*newNode).word, new_word, 29);
+    strcpy((*newNode).word, new_word);
     (*newNode).next = NULL;
 
 
