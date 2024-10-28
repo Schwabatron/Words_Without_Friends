@@ -21,8 +21,8 @@ typedef struct gameListNode {
 } gameListNode;
 
 //Compare function used for qsort
-int compare(char *a, char *b) {
-    return (*a) - (*b);
+int compare(const void *a, const void *b) {
+    return (*(const char *)a) - (*(const char *)b);
 }
 /*
 If value_a is less than value_b, returns a negative.
