@@ -61,15 +61,15 @@ int main()
     initialization(); //Call to the initialization funct
     wordListNode *longWordNode = getRandomWord();
     findWords(longWordNode);
-    printf("%s\n", longWordNode->word);
+   // printf("%s\n", longWordNode->word);
 
    // Display the words in the game list (testing purposes)
-    gameListNode *gameCurrent = game_root;
-    printf("Words that can be formed from the master word:\n");
-    while (gameCurrent != NULL) {
-       printf("%s\n", gameCurrent->word);
-       gameCurrent = gameCurrent->next;
-    }
+    //gameListNode *gameCurrent = game_root;
+    //printf("Words that can be formed from the master word:\n");
+   // while (gameCurrent != NULL) {
+    //   printf("%s\n", gameCurrent->word);
+    //   gameCurrent = gameCurrent->next;
+    //}
 
     gameLoop(); //Call to the game loop function
     teardown(); //Call to the teardown function
