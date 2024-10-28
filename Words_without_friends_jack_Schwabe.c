@@ -20,9 +20,15 @@ typedef struct gameListNode {
     struct gameListNode *next;
 } gameListNode;
 
-int compare(const void *a, const void *b) {
-    return (*(const char *)a) - (*(const char *)b);
+//Compare function used for qsort
+int compare(char *a, char *b) {
+    return (*a) - (*b);
 }
+/*
+If value_a is less than value_b, returns a negative.
+If value_a is equal to value_b, returns zero.
+If value_a is greater than value_b, returns a positive.
+ */
 
 
 
@@ -108,7 +114,7 @@ void gameLoop()
 void teardown()
 {
     printf("Congrats you win!!\n");
-    cleanupGameListNodes(&game_root);
+    cleanupGameListNodes(&game_root); //Cleaning up the linked lists in the teardown function
     cleanupWordListNodes(&root);
 }
 
@@ -118,6 +124,7 @@ void teardown()
  */
 bool isDone()
 {
+    //Loops through the game list and if it finds a word with already found == false it will return false
     bool done = true;
     gameListNode *gameCurrent = game_root;
     while(gameCurrent != NULL) {
@@ -185,7 +192,7 @@ void acceptInput()
         if(compareCounts(distro, validLettersdistro))
         {
             gameListNode *gameCurrent = game_root;
-            bool found = false;
+            bool found = false; //Checking if we found a word
             while(gameCurrent != NULL)
             {
                 if(strcmp(buffer, gameCurrent->word) == 0)
@@ -331,10 +338,11 @@ void insertIntoDictionary(wordListNode **root, char *new_word) {
 
 void insertIntoGamelist(gameListNode **game_root, char *new_word) {
 
+
+    //checking if word already exists
     gameListNode *current = *game_root;
     while (current != NULL) {
         if (strcmp(current->word, new_word) == 0) {
-            // Word already exists, do not add it
             return;
         }
         current = current->next;
