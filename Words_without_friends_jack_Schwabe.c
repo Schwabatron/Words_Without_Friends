@@ -331,13 +331,21 @@ void insertIntoDictionary(wordListNode **root, char *new_word) {
 
 void insertIntoGamelist(gameListNode **game_root, char *new_word) {
 
+    gameListNode *current = *game_root;
+    while (current != NULL) {
+        if (strcmp(current->word, new_word) == 0) {
+            // Word already exists, do not add it
+            return;
+        }
+        current = current->next;
+    }
+
     gameListNode *newNode = malloc(sizeof(gameListNode));
 
     if (newNode == NULL) { //Checking if the malloc failed
         printf("Memory allocation failed for insertIntogameList\n");
         exit(1);
     }
-
 
     strncpy((*newNode).word, new_word, 29);
     (*newNode).already_found = false;
