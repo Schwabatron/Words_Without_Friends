@@ -51,12 +51,12 @@ int main()
     findWords(longWordNode);
 
     // Display the words in the game list (testing purposes)
-    gameListNode *gameCurrent = game_root;
-    printf("Words that can be formed from the master word:\n");
-    while (gameCurrent != NULL) {
-        printf("%s\n", gameCurrent->word);
-        gameCurrent = gameCurrent->next;
-    }
+   // gameListNode *gameCurrent = game_root;
+    //printf("Words that can be formed from the master word:\n");
+    //while (gameCurrent != NULL) {
+   //     printf("%s\n", gameCurrent->word);
+   //     gameCurrent = gameCurrent->next;
+    //}
 
     gameLoop(); //Call to the game loop function
     teardown(); //Call to the teardown function
@@ -67,7 +67,6 @@ int initialization()
 {
     srand(time(NULL)); //Setting a random time seed
 
-    //int word_counter = 0;
     FILE *file_pointer;
     file_pointer = fopen("2of12.txt", "r");
     if (file_pointer != NULL)
