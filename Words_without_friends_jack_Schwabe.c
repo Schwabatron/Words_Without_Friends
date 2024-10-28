@@ -20,6 +20,16 @@ typedef struct gameListNode {
     struct gameListNode *next;
 } gameListNode;
 
+//Compare function used for qsort
+int compare(char *a, char *b) {
+    return (*a) - (*b);
+}
+/*
+If value_a is less than value_b, returns a negative.
+If value_a is equal to value_b, returns zero.
+If value_a is greater than value_b, returns a positive.
+ */
+
 
 
 //Function Initializations
@@ -37,6 +47,8 @@ bool input_checker(char *string);
 void insertIntoDictionary(wordListNode **root, char *new_word);
 wordListNode *getRandomWord();
 void findWords(wordListNode *masterword);
+void cleanupWordListNodes(wordListNode **root);
+void cleanupGameListNodes(gameListNode **game_root);
 
 
 //Declaring the two roots of the linked lists as global variables
@@ -49,14 +61,15 @@ int main()
     initialization(); //Call to the initialization funct
     wordListNode *longWordNode = getRandomWord();
     findWords(longWordNode);
+    printf("%s\n", longWordNode->word);
 
-    // Display the words in the game list (testing purposes)
-   // gameListNode *gameCurrent = game_root;
-    //printf("Words that can be formed from the master word:\n");
-    //while (gameCurrent != NULL) {
-   //     printf("%s\n", gameCurrent->word);
-   //     gameCurrent = gameCurrent->next;
-    //}
+   // Display the words in the game list (testing purposes)
+    gameListNode *gameCurrent = game_root;
+    printf("Words that can be formed from the master word:\n");
+    while (gameCurrent != NULL) {
+       printf("%s\n", gameCurrent->word);
+       gameCurrent = gameCurrent->next;
+    }
 
     gameLoop(); //Call to the game loop function
     teardown(); //Call to the teardown function
@@ -100,7 +113,9 @@ void gameLoop()
  */
 void teardown()
 {
-    printf("All Done\n");
+    printf("Congrats you win!!\n");
+    cleanupGameListNodes(&game_root); //Cleaning up the linked lists in the teardown function
+    cleanupWordListNodes(&root);
 }
 
 /*
@@ -109,25 +124,56 @@ void teardown()
  */
 bool isDone()
 {
-    return true;
+    //Loops through the game list and if it finds a word with already found == false it will return false
+    bool done = true;
+    gameListNode *gameCurrent = game_root;
+    while(gameCurrent != NULL) {
+        if(gameCurrent->already_found == false) {
+            done = false;
+        }
+        gameCurrent = gameCurrent->next;
+    }
+
+    return done;
 }
 
 void displayWorld()
 {
+    char validletterssorted[30];
+    strcpy(validletterssorted, validLetters);
     //Printing the valid letters
-    for(int i = 0; i < strlen(validLetters); i++) {
-        printf("%c ", validLetters[i]);
+    qsort(validletterssorted, strlen(validletterssorted), sizeof(char), compare);
+    for(int i = 0; i < strlen(validletterssorted); i++) {
+        printf("%c ", validletterssorted[i]);
     }
     //Displaying a line between the valid letters and the playing space
 
     printf("\n---------------------\n");
+
+    gameListNode *gameCurrent = game_root;
+    while(gameCurrent != NULL) {
+        if(gameCurrent->already_found) {
+            printf("Found:%s\n", gameCurrent->word);
+        }
+        else {
+            printf("Not Found:");
+            for(int i = 0; i < strlen(gameCurrent->word); i++) {
+                printf("_");
+            }
+            printf("\n");
+        }
+        gameCurrent = gameCurrent->next;
+    }
+
+
+
 }
 
 void acceptInput()
 {
     int distro[26]; //declaring a 26 int array for the guess distribution
 
-    char buffer[20]; //declaring a 20 char array for the input from the user
+    char buffer[30]; //declaring a 20 char array for the input from the user
 
     printf("Enter a guess: "); //Prompting the user
 
@@ -143,11 +189,35 @@ void acceptInput()
         getLetterDistribution(buffer, distro);
 
         //Checking if you can make the guess using the valid letters
-        if(compareCounts(distro, validLettersdistro)) {
-            printf("You win!\n"); //If true display that the user has "won" or found a valid word
-
-        } else {
-            printf("You lose!\n"); //Otherwise display that the user has "lost" or guessed a word that is not using the valid letters
+        if(compareCounts(distro, validLettersdistro))
+        {
+            gameListNode *gameCurrent = game_root;
+            bool found = false; //Checking if we found a word
+            while(gameCurrent != NULL)
+            {
+                if(strcmp(buffer, gameCurrent->word) == 0)
+                {
+                    found = true;
+                    if(gameCurrent->already_found)
+                    {
+                        printf("You already found this word! Please try again :)\n");
+                    } else
+                    {
+                        gameCurrent->already_found = true;
+                        printf("Correct! You found a new word.\n");
+                    }
+                    break;
+                }
+                gameCurrent = gameCurrent->next;
+            }
+            if(!found)
+            {
+                printf("This word is not in the dictionary.\n");
+            }
+        }
+        else
+        {
+            printf("this is not a word using the characters in the master word!!\n"); //Otherwise display that the user has "lost" or guessed a word that is not using the valid letters
         }
     }
     //If the input is not valid, display to the user that the input is not valid
@@ -268,6 +338,16 @@ void insertIntoDictionary(wordListNode **root, char *new_word) {
 
 void insertIntoGamelist(gameListNode **game_root, char *new_word) {
 
+
+    //checking if word already exists
+    gameListNode *current = *game_root;
+    while (current != NULL) {
+        if (strcmp(current->word, new_word) == 0) {
+            return;
+        }
+        current = current->next;
+    }
+
     gameListNode *newNode = malloc(sizeof(gameListNode));
 
     if (newNode == NULL) { //Checking if the malloc failed
@@ -275,8 +355,8 @@ void insertIntoGamelist(gameListNode **game_root, char *new_word) {
         exit(1);
     }
 
-
     strncpy((*newNode).word, new_word, 29);
+    (*newNode).already_found = false;
     (*newNode).next = NULL;
 
 
@@ -347,5 +427,34 @@ void findWords(wordListNode *masterword) {
         current = (*current).next;
     }
 
+
+
 }
+
+void cleanupWordListNodes(wordListNode **root) {
+    wordListNode *current = *root;
+    wordListNode *nextNode;
+
+    while (current != NULL) {
+        nextNode = current->next;
+        free(current);
+        current = nextNode;
+    }
+
+    *root = NULL;  // Set the root pointer to NULL after cleaning up
+}
+
+void cleanupGameListNodes(gameListNode **game_root) {
+    gameListNode *current = *game_root;
+    gameListNode *nextNode;
+
+    while (current != NULL) {
+        nextNode = current->next;
+        free(current);
+        current = nextNode;
+    }
+
+    *game_root = NULL;  // Set the game_root pointer to NULL after cleaning up
+}
+
 
