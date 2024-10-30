@@ -316,6 +316,8 @@ void insertIntoDictionary(wordListNode **root, char *new_word) {
 
     if (newNode == NULL) { //Checking if malloc failed
         printf("Memory allocation failed for insertIntoList\n");
+        cleanupGameListNodes(&game_root);
+        cleanupGameListNodes(&root);
         exit(1);
     }
 
@@ -352,6 +354,8 @@ void insertIntoGamelist(gameListNode **game_root, char *new_word) {
 
     if (newNode == NULL) { //Checking if the malloc failed
         printf("Memory allocation failed for insertIntogameList\n");
+        cleanupGameListNodes(&game_root);
+        cleanupGameListNodes(&root);
         exit(1);
     }
 
@@ -376,6 +380,8 @@ void insertIntoGamelist(gameListNode **game_root, char *new_word) {
 wordListNode *getRandomWord() {
     if (word_counter == 0) { //Checking if the dictionary has any words
         printf("The dictionary is empty.\n");
+        cleanupGameListNodes(&game_root);
+        cleanupGameListNodes(&root);
         exit(1);
     }
 
